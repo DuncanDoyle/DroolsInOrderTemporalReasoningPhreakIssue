@@ -5,9 +5,10 @@
 	<artifactId>DroolsInOrderTemporalReasoningPhreakIssue</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<properties>
-
+		<!-- 
 		<org.drools.version>6.0.0.CR5</org.drools.version>
-		<!-- <org.drools.version>6.0.0-SNAPSHOT</org.drools.version> -->
+		 -->
+		<org.drools.version>6.0.2-redhat-6</org.drools.version>
 	</properties>
 	
 	<dependencies>
@@ -21,6 +22,7 @@
 			<artifactId>kie-ci</artifactId>
 			<version>${org.drools.version}</version>
 		</dependency>
+	<!--
 		<dependency>
 			<groupId>org.kie.commons</groupId>
 			<artifactId>kie-commons-cdi</artifactId>
@@ -31,6 +33,7 @@
 			<artifactId>kie-commons-data</artifactId>
 			<version>${org.drools.version}</version>
 		</dependency>
+	
 		<dependency>
 			<groupId>org.kie.commons</groupId>
 			<artifactId>kie-commons-io</artifactId>
@@ -52,6 +55,7 @@
 			<artifactId>kie-commons-validation</artifactId>
 			<version>${org.drools.version}</version>
 		</dependency>
+	-->
 		<dependency>
 			<groupId>org.kie</groupId>
 			<artifactId>kie-internal</artifactId>

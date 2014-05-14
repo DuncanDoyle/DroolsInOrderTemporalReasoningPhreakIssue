@@ -2,6 +2,10 @@ package org.jboss.ddoyle.drools.sample;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
+import org.drools.core.time.impl.PseudoClockScheduler;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -48,28 +52,47 @@ public class PhreakyTest {
 	}
 
 	private void testFrequency(final String code, final int fq) {
-
+		PseudoClockScheduler pseudoClock = (PseudoClockScheduler) kieSession.getSessionClock();
+		pseudoClock.setStartupTime(0);
+		
 		for (int i = 0; i < fq; i++) {
-			insertEvent(code, SimpleEvent.Status.ENRICHED, i);
+			insertEvent(code, SimpleEvent.Status.ENRICHED, new Date(i), i);
+			long advanceTime = i - pseudoClock.getCurrentTime();
+			if (advanceTime > 0) {
+				pseudoClock.advanceTime(advanceTime, TimeUnit.MILLISECONDS);
+			}
 		}
 		kieSession.fireAllRules();
 		assertEquals("All event must be still in working memory", fq, kieSession.getFactHandles().size());
 		assertEquals("No event must be in channel out", 0, channel.getSentObject().size());
 
-		insertEvent(code, SimpleEvent.Status.ENRICHED, 1);
+		long nextSessionClockTime = pseudoClock.getCurrentTime() + 1;
+		insertEvent(code, SimpleEvent.Status.ENRICHED, new Date(nextSessionClockTime), 1);
+		pseudoClock.advanceTime(1, TimeUnit.MILLISECONDS);
+				
 		kieSession.fireAllRules();
 		assertEquals("Last event must be in working memory", 1, kieSession.getFactHandles().size());
 		assertEquals("One event must be in channel out", 1, channel.getSentObject().size());
 
-		insertEvent(code, SimpleEvent.Status.ENRICHED, 1);
+		nextSessionClockTime = pseudoClock.getCurrentTime() + 1;
+		insertEvent(code, SimpleEvent.Status.ENRICHED, new Date(nextSessionClockTime), 1);
+		pseudoClock.advanceTime(1, TimeUnit.MILLISECONDS);
+		
 		kieSession.fireAllRules();
 		assertEquals("Two last event must be in working memory", 2, kieSession.getFactHandles().size());
 		assertEquals("Only one event must be in channel out", 1, channel.getSentObject().size());
 	}
 
 	private void testFrequencyTwo(final String code, final int fq) {
+		PseudoClockScheduler pseudoClock = kieSession.getSessionClock();
+		pseudoClock.setStartupTime(0);
+		
 		for (int i = 0; i < fq; i++) {
-			insertEvent(code, SimpleEvent.Status.ENRICHED, i);
+			insertEvent(code, SimpleEvent.Status.ENRICHED, new Date(i), i);
+			long advanceTime = i - pseudoClock.getCurrentTime();
+			if (advanceTime > 0) {
+				pseudoClock.advanceTime(advanceTime, TimeUnit.MILLISECONDS);
+			}
 		}
 		kieSession.fireAllRules();
 		
@@ -77,16 +100,17 @@ public class PhreakyTest {
 		assertEquals("Only one event must be in channel out", 1, channel.getSentObject().size());
 	}
 
-	private SimpleEvent createEvent(final String code, final SimpleEvent.Status status, final int index) {
+	private SimpleEvent createEvent(final String code, final SimpleEvent.Status status, final Date timestamp, final int index) {
 		SimpleEvent event = new SimpleEvent();
 		event.setCode(code);
 		event.setStatus(status);
+		event.setEventDate(timestamp);
 		event.setIndex(index);
 		return event;
 	}
 
-	protected void insertEvent(final String code, final SimpleEvent.Status status, final int index) {
-		kieSession.insert(createEvent(code, status, index));
+	protected void insertEvent(final String code, final SimpleEvent.Status status, final Date timestamp, final int index) {
+		kieSession.insert(createEvent(code, status, timestamp, index));
 	}
 
 }
