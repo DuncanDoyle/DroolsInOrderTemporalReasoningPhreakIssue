@@ -8,7 +8,7 @@
 		<!-- 
 		<org.drools.version>6.0.0.CR5</org.drools.version>
 		 -->
-		<org.drools.version>6.0.2-redhat-6</org.drools.version>
+		<org.drools.version>6.1.0-SNAPSHOT</org.drools.version>
 	</properties>
 	
 	<dependencies>
